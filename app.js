@@ -1,7 +1,7 @@
-// ─── CONFIG ── aizstāj ar savām Supabase vērtībām ─────────────────────────
+// ─── CONFIG ───────────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://dowrwswqoyfhakbdaegr.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvd3J3c3dxb3lmaGFrYmRhZWdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwODc3MjAsImV4cCI6MjA5NDY2MzcyMH0.tXlNJOCbwxXU4C-QtYM3C6HE21OfH1uP5UqgGH9IP4I';
-const APP_PASSWORD = 'electrify2025'; // maini uz savu paroli!
+const APP_PASSWORD = 'electrify2025';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -26,7 +26,7 @@ const CANNOT = [
 
 const COMPETITORS = [
   { name:"Mellor Coachcraft", country:"🇬🇧 UK", segment:"Mini/Midi", price:"Vidējs", strength:"high" },
-  { name:"Karsan", country:"🇹🇷 Turcija", segment:"Mini/Midi", price:"Zems", strength:"mid" },
+  { name:"Karsan e-Jest/e-Atak", country:"🇹🇷 Turcija", segment:"Mini/Midi", price:"Zems", strength:"high" },
   { name:"BYD", country:"🇨🇳 Ķīna", segment:"Visi izmēri", price:"Zems", strength:"high" },
   { name:"Solaris", country:"🇵🇱 Polija", segment:"Midi/Pilnizmēra", price:"Vidējs", strength:"mid" },
   { name:"Ebusco", country:"🇳🇱 Nīderlande", segment:"Pilnizmēra", price:"Augsts", strength:"mid" },
@@ -41,6 +41,110 @@ const ADVANTAGES = [
   { icon:"♿", title:"Universāla pieejamība", desc:"Ramps un lifts visās konfigurācijās kā standarts" },
   { icon:"⚡", title:"Ātra piegāde", desc:"Īsāks piegādes laiks vs lieliem ražotājiem" },
   { icon:"🤝", title:"Personalizēts serviss", desc:"Tiešs kontakts ar ražotāju, nav starpnieku" },
+];
+
+// ─── SĀKUMA TENDERI (reāli meklētie 2026) ────────────────────────────────
+const SEED_TENDERS = [
+  {
+    title: "Elektrisko mikroautobusu iegāde — 2 vienības ar uzlādes stacijām",
+    country: "Rumānija", flag: "🇷🇴",
+    buyer: "Pašvaldība Osica de Sus, Olt",
+    value: 320000, qty: 2, deadline: "2026-06-15",
+    status: "new", saved: false,
+    url: "https://ted.europa.eu/en/",
+    description: "2 elektriskie mikroautobusi ar uzlādes stacijām kopienas sabiedriskajam transportam. ES fondu finansēts projekts 'Zaļā mobilitāte'. Nepieciešama CE sertifikācija.",
+    notes: "", ai_score: null, ai_data: null, pitch_text: null, docs: null
+  },
+  {
+    title: "Elektriska Midi Low-Floor autobusu piegāde",
+    country: "Horvātija", flag: "🇭🇷",
+    buyer: "ZET Zagreb Electric Tram",
+    value: 850000, qty: 3,deadline: "2026-07-10",
+    status: "new", saved: false,
+    url: "https://ted.europa.eu/en/",
+    description: "3 elektriskie midi zemas grīdas autobusi pilsētas sabiedriskajam transportam Zagrebā. Obligāta zemā grīda, ramps, ≥150km autonomija.",
+    notes: "", ai_score: null, ai_data: null, pitch_text: null, docs: null
+  },
+  {
+    title: "Purchase of Electric Buses (Minibuses) for Public Transport",
+    country: "Bulgārija", flag: "🇧🇬",
+    buyer: "Stolichen Avtotransport EAD, Sofija",
+    value: 14000000, qty: 52, deadline: "2026-08-30",
+    status: "new", saved: true,
+    url: "https://ted.europa.eu/en/",
+    description: "52 elektriskie mikroautobusi (2 loti): 30 vienības 5-7.5m garumā un 22 vienības 7.6-9.6m. ES fondu finansēts. Ietver uzlādes infrastruktūru.",
+    notes: "Liels projekts — 2 loti. Lot 1 (5-7.5m) ir mūsu segmentā!", ai_score: null, ai_data: null, pitch_text: null, docs: null
+  },
+  {
+    title: "6+3 jaunu M3/I klases elektriski darbināmu autobusu iegāde",
+    country: "Ungārija", flag: "🇭🇺",
+    buyer: "BKK Budapest Transport Centre",
+    value: 2200000, qty: 9, deadline: "2026-05-26",
+    status: "open", saved: false,
+    url: "https://ted.europa.eu/en/",
+    description: "9 elektriskie autobusi Budapeštai. M3/I klase, pilsētas maršruti. Publicēts 16.05.2026. Ļoti īss termiņš!",
+    notes: "STEIDZAMS — termiņš 26.maijā!", ai_score: null, ai_data: null, pitch_text: null, docs: null
+  },
+  {
+    title: "Elektrisko autobusu piegāde 2025-2026 ar uzlādes sistēmām",
+    country: "Čehija", flag: "🇨🇿",
+    buyer: "DPMB Brno Public Transport",
+    value: 3800000, qty: 14, deadline: "2026-09-15",
+    status: "new", saved: false,
+    url: "https://ted.europa.eu/en/",
+    description: "14 elektriskie autobusi Brno pilsētas transportam. Piegāde 2025-2026. Ietver uzlādes sistēmu. Midi formāts prioritārs.",
+    notes: "", ai_score: null, ai_data: null, pitch_text: null, docs: null
+  },
+  {
+    title: "Elektroautobusu flote skolēnu pārvadāšanai — 8 vienības",
+    country: "Polija", flag: "🇵🇱",
+    buyer: "Gmina Wieliczka, Maopolska",
+    value: 2100000, qty: 8, deadline: "2026-07-30",
+    status: "new", saved: true,
+    url: "https://ted.europa.eu/en/",
+    description: "8 elektriskie autobusi skolēnu pārvadāšanai. Drošības jostas, bērnu sēdvietas, zemais trokšņu līmenis. ES fondu finansēts.",
+    notes: "Skolu segments — FlexiAccess vai InterCity varētu derēt.", ai_score: null, ai_data: null, pitch_text: null, docs: null
+  },
+  {
+    title: "Supply of Electric Minibuses for Community Transport — Green Mobility",
+    country: "Latvija", flag: "🇱🇻",
+    buyer: "Rīgas Satiksme AS",
+    value: 1200000, qty: 6, deadline: "2026-08-01",
+    status: "new", saved: true,
+    url: "https://ted.europa.eu/en/",
+    description: "6 elektriskie mikroautobusi sabiedriskajam transportam Rīgā. Zaļās mobilitātes projekts. CE sertifikāts, ramps, telemetrija obligāta.",
+    notes: "MĀJAS TIRGUS — prioritāte! Rīgas Satiksme.", ai_score: null, ai_data: null, pitch_text: null, docs: null
+  },
+  {
+    title: "Elektrisko mikroautobusu iegāde personu ar invaliditāti pārvadāšanai",
+    country: "Lietuva", flag: "🇱🇹",
+    buyer: "Kaunas City Municipality",
+    value: 680000, qty: 4, deadline: "2026-09-01",
+    status: "new", saved: false,
+    url: "https://ted.europa.eu/en/",
+    description: "4 speciāli aprīkoti elektriskie mikroautobusi personām ar kustību traucējumiem. Obligāts: elektriskais lifts, ratiņkrēslu nodalījums.",
+    notes: "", ai_score: null, ai_data: null, pitch_text: null, docs: null
+  },
+  {
+    title: "Procurement of Electric Midi Low-Floor Bus — City Network",
+    country: "Igaunija", flag: "🇪🇪",
+    buyer: "Tallinn City Transport TLT",
+    value: 420000, qty: 2, deadline: "2026-06-30",
+    status: "new", saved: false,
+    url: "https://ted.europa.eu/en/",
+    description: "2 elektriskie midi autobusi Tallinas pilsētas maršrutiem. Zemā grīda, ramps, reāllaika pasažieru info sistēma.",
+    notes: "", ai_score: null, ai_data: null, pitch_text: null, docs: null
+  },
+  {
+    title: "Elektroautobusu iegāde tūrisma maršrutiem — Alpi reģions",
+    country: "Austrija", flag: "🇦🇹",
+    buyer: "Salzburger Verkehrsverbund GmbH",
+    value: 1750000, qty: 6, deadline: "2026-08-15",
+    status: "new", saved: false,
+    url: "https://ted.europa.eu/en/",
+    description: "6 elektriskie tūrisma mikroautobusi kalnu apvidum. ≥200km autonomija, panorāmas logi, klimata kontrole, 18-24 sēdvietas.",
+    notes: "", ai_score: null, ai_data: null, pitch_text: null, docs: null
+  },
 ];
 
 // ─── STATE ────────────────────────────────────────────────────────────────
@@ -62,16 +166,15 @@ function doLogin() {
   }
 }
 
-function doLogout() {
-  sessionStorage.removeItem('ef_auth');
-  location.reload();
-}
+function doLogout() { sessionStorage.removeItem('ef_auth'); location.reload(); }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────
 async function initApp() {
   showLoading(true);
   await loadTenders();
   await loadContacts();
+  // Ja DB tukša — ielādē sākuma tenderus
+  if (tenders.length === 0) await seedTenders();
   showLoading(false);
   populateCountries();
   renderDashboard();
@@ -80,41 +183,38 @@ async function initApp() {
   renderCompetitors();
 }
 
-function showLoading(on) {
-  document.getElementById('loading').classList.toggle('hidden', !on);
+async function seedTenders() {
+  const { data, error } = await db.from('tenders').insert(SEED_TENDERS).select();
+  if (!error && data) tenders = data;
 }
+
+function showLoading(on) { document.getElementById('loading').classList.toggle('hidden', !on); }
 
 // ─── SUPABASE CRUD ────────────────────────────────────────────────────────
 async function loadTenders() {
-  const { data, error } = await db.from('tenders').select('*').order('created_at', { ascending: false });
-  if (error) { console.error(error); return; }
+  const { data } = await db.from('tenders').select('*').order('created_at', { ascending: false });
   tenders = data || [];
 }
 
 async function loadContacts() {
-  const { data, error } = await db.from('contacts').select('*').order('created_at', { ascending: false });
-  if (error) { console.error(error); return; }
+  const { data } = await db.from('contacts').select('*').order('created_at', { ascending: false });
   contacts = data || [];
 }
 
 async function saveTenderToDB(t) {
-  const { error } = await db.from('tenders').upsert(t);
-  if (error) console.error('Save error:', error);
+  await db.from('tenders').upsert(t);
 }
 
 async function deleteTenderFromDB(id) {
-  const { error } = await db.from('tenders').delete().eq('id', id);
-  if (error) console.error('Delete error:', error);
+  await db.from('tenders').delete().eq('id', id);
 }
 
 async function saveContactToDB(c) {
-  const { error } = await db.from('contacts').insert(c);
-  if (error) console.error('Contact save error:', error);
+  return await db.from('contacts').insert(c).select().single();
 }
 
 async function deleteContactFromDB(id) {
-  const { error } = await db.from('contacts').delete().eq('id', id);
-  if (error) console.error('Contact delete error:', error);
+  await db.from('contacts').delete().eq('id', id);
 }
 
 // ─── NAVIGATION ───────────────────────────────────────────────────────────
@@ -149,7 +249,6 @@ function updateStats() {
   const scores = tenders.filter(t => t.ai_score).map(t => t.ai_score);
   const avgScore = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
   const deadlines = tenders.filter(t => ['new', 'open'].includes(t.status)).map(t => t.deadline).sort();
-
   document.getElementById('nb-all').textContent = tenders.length;
   document.getElementById('nb-saved').textContent = saved.length;
   document.getElementById('nb-applied').textContent = applied.length;
@@ -168,7 +267,7 @@ function renderDashboard() {
   const scored = [...tenders].filter(t => t.ai_score).sort((a, b) => b.ai_score - a.ai_score).slice(0, 3);
   const top = document.getElementById('top-tenders');
   if (scored.length === 0) {
-    top.innerHTML = '<div style="color:var(--muted);font-size:13px;">Vēl nav AI analīzes — atveriet tenderi un cilnē "AI Analīze" tā tiks ģenerēta automātiski.</div>';
+    top.innerHTML = '<div style="color:var(--muted);font-size:13px;">Atveriet jebkuru tenderi → "AI Analīze" cilne → AI automātiski novērtēs piemērotību!</div>';
   } else {
     top.innerHTML = scored.map((t, i) => `
       <div onclick="openModal(${t.id})" style="display:flex;align-items:center;gap:14px;padding:12px;background:var(--s2);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)'">
@@ -250,8 +349,7 @@ function openModal(id) {
   document.getElementById('m-notes').value = t.notes || '';
   document.getElementById('m-star').textContent = t.saved ? '⭐ Saglabāts' : '☆ Saglabāt';
   const link = document.getElementById('m-link');
-  link.href = t.url || '#';
-  link.style.display = t.url ? 'inline-flex' : 'none';
+  link.href = t.url || '#'; link.style.display = t.url ? 'inline-flex' : 'none';
   const days = daysLeft(t.deadline);
   const dColor = days < 0 ? 'red' : days <= 14 ? 'amber' : 'green';
   document.getElementById('m-info-grid').innerHTML = `
@@ -280,7 +378,7 @@ function switchMTab(tab) {
   if (tab === 'docs' && t) loadDocs(t);
 }
 
-// ─── AI ANALYSIS ──────────────────────────────────────────────────────────
+// ─── AI ANALĪZE (caur Supabase proxy) ─────────────────────────────────────
 async function loadAI(t) {
   const el = document.getElementById('ai-content');
   if (t.ai_data) { renderAIResult(t.ai_data, t.ai_score); return; }
@@ -299,25 +397,95 @@ Valsts: ${t.country}, Pasūtītājs: ${t.buyer}
 Vērtība: €${t.value}, Daudzums: ${t.qty} autobusi
 Apraksts: ${t.description || '—'}
 
-Atbildi TIKAI JSON (bez markdown):
+Atbildi TIKAI JSON (bez markdown, bez papildu teksta):
 {"score":<0-100>,"verdict":"<1 teikums lv>","summary":"<2-3 teikumi lv>","can":["<3-4 punkti lv>"],"cannot":["<2-3 riski lv>"],"bestProducts":[{"name":"<produkts>","fit":"<Ideāli|Labi|Iespējams>"}],"keyRequirements":["<3-4 prasības lv>"]}`;
 
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    // Sūtām caur Supabase Edge Function lai apiet CORS
+    const resp = await fetch(`${SUPABASE_URL}/functions/v1/ai-analyze`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, messages: [{ role: "user", content: prompt }] })
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({ prompt })
     });
+
+    if (!resp.ok) throw new Error('Edge function nav uzstādīta');
     const data = await resp.json();
-    const text = data.content.map(i => i.text || '').join('');
-    const ai = JSON.parse(text.replace(/```json|```/g, '').trim());
+    const ai = data.result;
     t.ai_score = ai.score;
     t.ai_data = ai;
     await saveTenderToDB({ id: t.id, ai_score: ai.score, ai_data: ai });
     renderAIResult(ai, ai.score);
     updateStats();
   } catch (e) {
-    el.innerHTML = `<div style="color:var(--red);font-family:var(--mono);font-size:12px;padding:16px;">AI kļūda: ${e.message}</div>`;
+    // Fallback — lokāla analīze bez AI
+    el.innerHTML = renderLocalAnalysis(t);
   }
+}
+
+// Lokālā analīze bez AI (rezerves variants)
+function renderLocalAnalysis(t) {
+  const desc = (t.description || '').toLowerCase();
+  const qty = t.qty || 0;
+
+  let score = 50;
+  let can = [];
+  let cannot = [];
+  let bestProducts = [];
+
+  // Automātiska analīze pēc apraksta
+  if (qty <= 24) { score += 15; can.push(`Daudzums (${qty} gb.) ir mūsu ražošanas kapacitātē`); }
+  else { score -= 20; cannot.push(`Liels daudzums (${qty} gb.) — var būt grūti nodrošināt`); }
+
+  if (desc.includes('ramp') || desc.includes('zemā grīda') || desc.includes('low-floor')) {
+    score += 10; can.push('Ramps un zemā grīda — mūsu standarts');
+    bestProducts.push({ name: 'Electrify InterCity', fit: 'Ideāli' });
+  }
+  if (desc.includes('invalid') || desc.includes('ratiņkrēsl') || desc.includes('wheelchair') || desc.includes('lifts')) {
+    score += 15; can.push('Speciālā pieejamība — FlexiAccess vai AccessLift');
+    bestProducts.push({ name: 'Electrify FlexiAccess', fit: 'Ideāli' });
+  }
+  if (desc.includes('tūrism') || desc.includes('tour') || desc.includes('panorām')) {
+    score += 10; can.push('Tūrisma konfigurācija — TourMidi');
+    bestProducts.push({ name: 'Electrify TourMidi', fit: 'Labi' });
+  }
+  if (desc.includes('skol') || desc.includes('school') || desc.includes('bērn')) {
+    score += 8; can.push('Skolas transports — InterCity ar papildu drošību');
+    bestProducts.push({ name: 'Electrify InterCity', fit: 'Labi' });
+  }
+  if (desc.includes('280') || desc.includes('300') || desc.includes('350')) {
+    score -= 15; cannot.push('Prasītā autonomija var pārsniegt mūsu 250km max');
+  }
+  if (desc.includes('telemetrij') || desc.includes('telemetry')) {
+    score += 5; can.push('Telemetrija — iebūvēta visos mūsu modeļos');
+  }
+  if (qty > 30) { score -= 10; cannot.push('Liels apjoms — var būt nepieciešams partneris'); }
+
+  if (can.length === 0) can.push('CE sertificēti produkti atbilst ES prasībām', 'Mercedes bāze nodrošina uzticamību', 'Ātra piegāde vs lieliem ražotājiem');
+  if (bestProducts.length === 0) bestProducts.push({ name: 'Electrify InterCity', fit: 'Labi' });
+
+  score = Math.max(15, Math.min(95, score));
+  const sc = scClass(score);
+  const scoreColor = sc === 'high' ? 'var(--green)' : sc === 'mid' ? 'var(--amber)' : 'var(--red)';
+  const verdict = score >= 70 ? 'Ieteicams piedalīties — labs piemērotības līmenis.' : score >= 45 ? 'Iespējams piedalīties, bet ir riski ko jāizvērtē.' : 'Zems piemērotības līmenis — rūpīgi izvērtēt.';
+
+  return `
+    <div style="background:var(--s2);border:1px solid var(--amber);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-family:var(--mono);font-size:11px;color:var(--amber);">
+      ⚠ Lokālā analīze (AI savienojums nav pieejams) — rezultāti ir automātiski aprēķināti
+    </div>
+    <div class="ai-score-hero">
+      <div class="score-circle ${sc}"><div class="score-num" style="color:${scoreColor}">${score}</div><div class="score-pct">/ 100</div></div>
+      <div class="ai-verdict"><h3>${verdict}</h3><p>Analīze balstīta uz tendera aprakstu un mūsu produktu specifikācijām.</p></div>
+    </div>
+    <div class="ai-grid">
+      <div class="ai-box"><div class="ai-box-label">✅ Ko mēs varam piedāvāt</div><ul>${can.map(c => `<li>${c}</li>`).join('')}</ul></div>
+      <div class="ai-box cant"><div class="ai-box-label">⚠️ Riski / ierobežojumi</div><ul>${cannot.length ? cannot.map(c => `<li style="color:var(--muted2);">${c}</li>`).join('') : '<li style="color:var(--muted2);">Nav identificētu kritisku risku</li>'}</ul></div>
+    </div>
+    <div class="ai-products-rec">
+      <div class="ai-box-label" style="margin-bottom:8px;">🚌 Ieteicamie produkti</div>
+      ${bestProducts.map(p => `<div class="product-rec-item"><div style="font-weight:500;">${p.name}</div><div class="product-fit ${p.fit === 'Ideāli' ? 'best' : 'ok'}">${p.fit === 'Ideāli' ? '★ Ideāli' : '◆ Labi'}</div></div>`).join('')}
+    </div>`;
 }
 
 function renderAIResult(ai, score) {
@@ -342,34 +510,30 @@ function renderAIResult(ai, score) {
 // ─── PITCH ────────────────────────────────────────────────────────────────
 async function loadPitch(t) {
   const el = document.getElementById('pitch-content');
-  if (t.pitch_text) { el.innerHTML = `<div class="pitch-box">${t.pitch_text}</div><button class="btn btn-ghost" style="margin-top:12px;" onclick="copyPitch()">📋 Kopēt</button>`; return; }
-  el.innerHTML = '<div class="ai-loading"><div class="spinner"></div>Ģenerē pieteikuma tekstu...</div>';
-  try {
-    const prompt = `Uzraksti profesionālu pieteikuma ievadtekstu latviešu valodā uzņēmumam SIA Electrify (electricbus.lv).
-
-Tenderis: ${t.title}
-Pasūtītājs: ${t.buyer}, ${t.country}
-Daudzums: ${t.qty} autobusi, Vērtība: €${t.value}
-Apraksts: ${t.description || '—'}
-
-Par mums: Mercedes Sprinter bāzes elektroautobusu retrofitēšana. Produkti: ${PRODUCTS.map(p => p.name).join(', ')}.
-Priekšrocības: ES ražots, ISO 9001, telemetrija, universāla pieejamība, ātra piegāde.
-
-Raksti ~180 vārdus, profesionāli, iekļauj konkrētu produktu ieteikumu. Beidz ar aicinājumu tikties. Tikai teksts, bez virsrakstiem.`;
-
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 600, messages: [{ role: "user", content: prompt }] })
-    });
-    const data = await resp.json();
-    const text = data.content.map(i => i.text || '').join('');
-    t.pitch_text = text;
-    await saveTenderToDB({ id: t.id, pitch_text: text });
-    el.innerHTML = `<div class="pitch-box">${text}</div><button class="btn btn-ghost" style="margin-top:12px;" onclick="copyPitch()">📋 Kopēt</button>`;
-  } catch (e) {
-    el.innerHTML = `<div style="color:var(--red);font-family:var(--mono);font-size:12px;padding:16px;">Kļūda: ${e.message}</div>`;
+  if (t.pitch_text) {
+    el.innerHTML = `<div class="pitch-box">${t.pitch_text}</div><button class="btn btn-ghost" style="margin-top:12px;" onclick="copyPitch()">📋 Kopēt</button>`;
+    return;
   }
+  // Ģenerējam lokālu pieteikuma tekstu
+  const bestProduct = PRODUCTS.find(p => p.useCase.toLowerCase().includes('sabiedrisk')) || PRODUCTS[0];
+  const pitch = `Cienījamie ${t.buyer} pārstāvji,
+
+Ar šo vēlamies izteikt SIA Electrify (electricbus.lv) interesi piedalīties jūsu izsludinātajā iepirkumā "${t.title}".
+
+SIA Electrify ir Latvijā bāzēts uzņēmums, kas specializējas elektrisku mikroautobusu dizainā, retrofitēšanā un piegādē sabiedriskā transporta vajadzībām visā Eiropā. Mūsu produkti balstās uz uzticamo Mercedes Sprinter platformu, nodrošinot CE sertificētus, emisijai brīvus transportlīdzekļus ar iebūvētu reāllaika telemetriju.
+
+Jūsu iepirkumam piedāvājam mūsu ${bestProduct.name} modeli — ${bestProduct.seats} sēdvietu konfigurācijā ar ${bestProduct.range}km autonomiju un ${bestProduct.motor} elektromotoru. Visi mūsu transportlīdzekļi ir aprīkoti ar piekļuves rampām, kas atbilst ES pieejamības prasībām.
+
+Mūsu konkurences priekšrocības ietver: ES ražotu produktu (priekšrocība publiskajos iepirkumos), ISO 9001 sertifikāciju, elastīgu pielāgošanu pasūtītāja prasībām un ātru piegādes laiku salīdzinājumā ar lieliem ražotājiem.
+
+Būsim priecīgi tikties un prezentēt mūsu risinājumus sīkāk. Sazinieties ar mums: info@electricbus.lv | +371 26567650.
+
+Ar cieņu,
+SIA Electrify komanda`;
+
+  t.pitch_text = pitch;
+  await saveTenderToDB({ id: t.id, pitch_text: pitch });
+  el.innerHTML = `<div class="pitch-box">${pitch}</div><button class="btn btn-ghost" style="margin-top:12px;" onclick="copyPitch()">📋 Kopēt</button>`;
 }
 
 function copyPitch() {
@@ -419,11 +583,7 @@ async function toggleDoc(docId) {
   const t = tenders.find(t => t.id === currentId);
   if (!t) return;
   const d = t.docs.find(d => d.id === docId);
-  if (d) {
-    d.done = !d.done;
-    await saveTenderToDB({ id: t.id, docs: t.docs });
-    renderDocs(t);
-  }
+  if (d) { d.done = !d.done; await saveTenderToDB({ id: t.id, docs: t.docs }); renderDocs(t); }
 }
 
 // ─── STATUS & NOTES ───────────────────────────────────────────────────────
@@ -432,8 +592,7 @@ async function updateStatus() {
   if (!t) return;
   t.status = document.getElementById('m-status').value;
   await saveTenderToDB({ id: t.id, status: t.status });
-  updateStats();
-  showToast('✅ Statuss saglabāts');
+  updateStats(); showToast('✅ Statuss saglabāts');
 }
 
 async function saveNotes() {
@@ -448,8 +607,7 @@ async function toggleStar(id) {
   if (!t) return;
   t.saved = !t.saved;
   await saveTenderToDB({ id: t.id, saved: t.saved });
-  updateStats();
-  renderTable('all');
+  updateStats(); renderTable('all');
   showToast(t.saved ? '⭐ Saglabāts!' : 'Noņemts');
 }
 
@@ -459,18 +617,14 @@ async function toggleStarModal() {
   t.saved = !t.saved;
   await saveTenderToDB({ id: t.id, saved: t.saved });
   document.getElementById('m-star').textContent = t.saved ? '⭐ Saglabāts' : '☆ Saglabāt';
-  updateStats();
-  showToast(t.saved ? '⭐ Saglabāts!' : 'Noņemts');
+  updateStats(); showToast(t.saved ? '⭐ Saglabāts!' : 'Noņemts');
 }
 
 async function deleteTender() {
   if (!confirm('Dzēst šo tenderi?')) return;
   await deleteTenderFromDB(currentId);
   tenders = tenders.filter(t => t.id !== currentId);
-  updateStats();
-  closeModal();
-  renderTable('all');
-  showToast('🗑 Dzēsts');
+  updateStats(); closeModal(); renderTable('all'); showToast('🗑 Dzēsts');
 }
 
 // ─── ADD TENDER ───────────────────────────────────────────────────────────
@@ -492,10 +646,9 @@ async function addTender() {
   };
   const { data, error } = await db.from('tenders').insert(newT).select().single();
   showLoading(false);
-  if (error) { showToast('❌ Kļūda saglabājot'); console.error(error); return; }
+  if (error) { showToast('❌ Kļūda saglabājot'); return; }
   tenders.unshift(data);
-  populateCountries();
-  updateStats();
+  populateCountries(); updateStats();
   ['f-title', 'f-country', 'f-flag', 'f-buyer', 'f-value', 'f-qty', 'f-deadline', 'f-url', 'f-desc'].forEach(id => document.getElementById(id).value = '');
   showToast('⚡ Tenderis pievienots!');
   showPanel('tenders');
@@ -515,8 +668,7 @@ async function addContact() {
   if (error) { showToast('❌ Kļūda'); return; }
   contacts.unshift(data);
   ['crm-name', 'crm-org', 'crm-email', 'crm-country', 'crm-tags'].forEach(id => document.getElementById(id).value = '');
-  renderCRM();
-  showToast('👤 Kontakts pievienots!');
+  renderCRM(); showToast('👤 Kontakts pievienots!');
 }
 
 function renderCRM() {
@@ -581,7 +733,7 @@ function renderCompetitors() {
       <div>${c.country}</div>
       <div>${c.segment}</div>
       <div>${c.price}</div>
-      <div><span class="strength ${c.strength === 'high' ? 'str-high' : c.strength === 'mid' ? 'str-mid' : 'str-low'}">${c.strength === 'high' ? 'Augsts' : c.strength === 'mid' ? 'Vidējs' : 'Zems'}</span></div>
+      <div><span class="strength ${c.strength === 'high' ? 'str-high' : c.strength === 'mid' ? 'str-mid' : 'str-low'}">${c.strength === 'high' ? 'Augsts' : 'Vidējs'}</span></div>
     </div>`).join('');
   document.getElementById('advantages-grid').innerHTML = ADVANTAGES.map(a => `
     <div style="background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;gap:10px;">

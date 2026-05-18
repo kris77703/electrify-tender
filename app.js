@@ -538,14 +538,13 @@ Atbildi TIKAI JSON formātā (bez markdown, bez komentāriem):
 }`;
 
   try {
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    const resp = await fetch("/api/ai", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1500, messages: [{ role: "user", content: prompt }] })
+      body: JSON.stringify({ prompt })
     });
     const data = await resp.json();
-    const text = data.content.map(i => i.text || '').join('');
-    const ai = JSON.parse(text.replace(/```json|```/g, '').trim());
+    const ai = data.result;
     t.ai_score = ai.score;
     t.ai_data = ai;
     t.requirements = ai.requirements;
@@ -668,13 +667,13 @@ Raksti ~200 vārdus, profesionāli un pārliecinoši. Iekļauj:
 4. Aicinājums uz sadarbību
 Tikai teksts, bez virsrakstiem.`;
 
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    const resp = await fetch("/api/ai", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 700, messages: [{ role: "user", content: prompt }] })
+      body: JSON.stringify({ prompt, maxTokens: 700, returnRaw: true })
     });
     const data = await resp.json();
-    const text = data.content.map(i => i.text || '').join('');
+    const text = data.result || '';
     t.pitch_text = text;
     await saveTenderToDB({ id: t.id, pitch_text: text });
     el.innerHTML = `<div class="pitch-box">${text}</div><button class="btn btn-ghost" style="margin-top:12px;" onclick="copyPitch()">📋 Kopēt</button>`;

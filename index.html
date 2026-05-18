@@ -313,6 +313,8 @@ textarea.form-input{resize:vertical;min-height:90px;}
       <div class="nav-item" onclick="showPanel('crm')"><span class="icon">👥</span> CRM Kontakti</div>
       <div class="nav-item" onclick="showPanel('finance')"><span class="icon">💰</span> Finanšu kalkulators</div>
       <div class="nav-item" onclick="showPanel('competitors')"><span class="icon">🎯</span> Konkurenti</div>
+      <div class="nav-item" onclick="showPanel('map')"><span class="icon">🗺️</span> Valstu karte</div>
+      <div class="nav-item" onclick="showPanel('stats')"><span class="icon">📊</span> Statistika</div>
       <div class="nav-item" onclick="showPanel('add')"><span class="icon">➕</span> Pievienot tenderi</div>
     </nav>
     <div class="sidebar-stats">
@@ -330,6 +332,7 @@ textarea.form-input{resize:vertical;min-height:90px;}
       <div class="page-title" id="page-title">Pārskats</div>
       <div>
         <button class="btn btn-ghost" onclick="showPanel('add')">+ Jauns tenderis</button>
+        <button class="btn btn-primary" id="scan-btn" onclick="scanTED()">🔄 Skenēt TED</button>
       </div>
     </div>
     <div class="content">
@@ -446,6 +449,20 @@ textarea.form-input{resize:vertical;min-height:90px;}
           <div style="font-family:var(--head);font-size:14px;font-weight:700;margin-bottom:10px;">💡 Mūsu konkurētspējas priekšrocības</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="advantages-grid"></div>
         </div>
+      </div>
+
+      <!-- MAP -->
+      <div class="panel" id="panel-map">
+        <div id="map-container" style="background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:20px;">
+          <div style="font-family:var(--head);font-size:16px;font-weight:700;margin-bottom:16px;">🗺️ Aktīvie tenderi Eiropā</div>
+          <div id="map-svg-container"></div>
+          <div id="map-legend" style="margin-top:16px;display:flex;gap:16px;flex-wrap:wrap;"></div>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="panel" id="panel-stats">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;" id="stats-container"></div>
       </div>
 
       <!-- ADD -->

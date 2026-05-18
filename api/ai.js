@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   try {
-    const { prompt } = req.body;
+    const { prompt, maxTokens, returnRaw } = req.body;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -18,18 +18,22 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1500,
+        max_tokens: maxTokens || 1500,
         messages: [{ role: 'user', content: prompt }],
       }),
     });
 
     const data = await response.json();
     const text = data.content.map(i => i.text || '').join('');
-    const clean = text.replace(/```json|```/g, '').trim();
-    const result = JSON.parse(clean);
 
-    return res.status(200).json({ result });
+    if (returnRaw) {
+      return res.status(200).json({ result: text });
+    } else {
+      const clean = text.replace(/```json|```/g, '').trim();
+      const result = JSON.parse(clean);
+      return res.status(200).json({ result });
+    }
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
-
+}

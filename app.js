@@ -275,7 +275,7 @@ async function deleteTenderFromDB(id) { await db.from('tenders').delete().eq('id
 const pageTitles = {
   dashboard: '📊 Pārskats', tenders: '📋 Visi tenderi', saved: '⭐ Saglabātie',
   applied: '🚀 Pieteikumi', crm: '👥 CRM Kontakti', finance: '💰 Finanšu kalkulators',
-  competitors: '🎯 Konkurenti', add: '➕ Pievienot tenderi'
+  competitors: '🎯 Konkurenti', add: '➕ Pievienot tenderi', map: '🗺️ Valstu karte', stats: '📊 Statistika'
 };
 
 function showPanel(id) {
@@ -292,6 +292,8 @@ function showPanel(id) {
   if (id === 'dashboard') renderDashboard();
   if (id === 'crm') renderCRM();
   if (id === 'finance') updateCalc();
+  if (id === 'map') renderMap();
+  if (id === 'stats') renderStats();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -941,4 +943,249 @@ if (sessionStorage.getItem('ef_auth') === '1') {
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('app').style.display = 'grid';
   initApp();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TED SKENĒŠANA — manuāla poga
+// ═══════════════════════════════════════════════════════════════════════════
+async function scanTED() {
+  const btn = document.getElementById('scan-btn');
+  btn.textContent = '⏳ Skenē TED...';
+  btn.disabled = true;
+
+  try {
+    // TED OpenData API — bezmaksas, bez autentifikācijas
+    const cpvCodes = ['34114400', '34121000', '34121400'];
+    const newTenders = [];
+
+    for (const cpv of cpvCodes) {
+      const url = `https://ted.europa.eu/api/v3.0/notices/search?q=CPV%3D${cpv}&fields=notice-number,title,buyer-name,buyer-country,deadline-date,contract-value,notice-url&pageNum=1&pageSize=10&sortField=DEADLINE_DATE&sortOrder=DESC&scope=ACTIVE&language=EN`;
+      try {
+        const resp = await fetch(url);
+        if (!resp.ok) continue;
+        const data = await resp.json();
+        if (data.notices) {
+          for (const n of data.notices) {
+            const deadline = n['deadline-date'] ? n['deadline-date'].split('T')[0] : null;
+            if (!deadline) continue;
+            if (new Date(deadline) < new Date()) continue;
+            // Pārbauda vai jau eksistē
+            const exists = tenders.find(t => t.url && t.url.includes(n['notice-number']));
+            if (exists) continue;
+            newTenders.push({
+              title: n.title || 'Electric bus tender',
+              country: countryFromCode(n['buyer-country']),
+              flag: flagFromCode(n['buyer-country']),
+              buyer: n['buyer-name'] || '—',
+              value: n['contract-value'] ? parseInt(n['contract-value']) : 0,
+              qty: 0,
+              deadline: deadline,
+              status: 'new',
+              saved: false,
+              url: `https://ted.europa.eu/en/notice/-/detail/${n['notice-number']}`,
+              description: `CPV: ${cpv}. Skenēts no TED Europa ${new Date().toLocaleDateString('lv')}.`,
+              notes: '',
+              ai_score: null, ai_data: null, pitch_text: null, docs: null, requirements: null
+            });
+          }
+        }
+      } catch (e) { console.log('CPV error:', cpv, e); }
+    }
+
+    if (newTenders.length > 0) {
+      const { data, error } = await db.from('tenders').insert(newTenders).select();
+      if (!error && data) {
+        tenders = [...data, ...tenders];
+        populateCountries();
+        updateStats();
+        renderDashboard();
+        showToast(`✅ Pievienoti ${data.length} jauni tenderi no TED!`);
+      }
+    } else {
+      showToast('ℹ️ Nav jaunu tenderu — visi jau ir sistēmā');
+    }
+  } catch (e) {
+    showToast('⚠️ TED API kļūda — mēģiniet vēlāk');
+    console.error(e);
+  }
+
+  btn.textContent = '🔄 Skenēt TED Europa';
+  btn.disabled = false;
+}
+
+function countryFromCode(code) {
+  const map = { LV:'Latvija', LT:'Lietuva', EE:'Igaunija', RO:'Rumānija', PL:'Polija', BG:'Bulgārija', HR:'Horvātija', SI:'Slovēnija', DE:'Vācija', AT:'Austrija', BE:'Beļģija', NL:'Nīderlande', GR:'Grieķija', ES:'Spānija', PT:'Portugāle', FR:'Francija', CZ:'Čehija', SK:'Slovākija', HU:'Ungārija', IT:'Itālija', SE:'Zviedrija', FI:'Somija', DK:'Dānija', IE:'Īrija' };
+  return map[code] || code || 'ES';
+}
+
+function flagFromCode(code) {
+  const map = { LV:'🇱🇻', LT:'🇱🇹', EE:'🇪🇪', RO:'🇷🇴', PL:'🇵🇱', BG:'🇧🇬', HR:'🇭🇷', SI:'🇸🇮', DE:'🇩🇪', AT:'🇦🇹', BE:'🇧🇪', NL:'🇳🇱', GR:'🇬🇷', ES:'🇪🇸', PT:'🇵🇹', FR:'🇫🇷', CZ:'🇨🇿', SK:'🇸🇰', HU:'🇭🇺', IT:'🇮🇹', SE:'🇸🇪', FI:'🇫🇮', DK:'🇩🇰', IE:'🇮🇪' };
+  return map[code] || '🏳';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VALSTU KARTE
+// ═══════════════════════════════════════════════════════════════════════════
+function renderMap() {
+  const container = document.getElementById('map-svg-container');
+  const legend = document.getElementById('map-legend');
+
+  // Grupoēt tenderus pa valstīm
+  const byCountry = {};
+  tenders.forEach(t => {
+    if (!byCountry[t.country]) byCountry[t.country] = { count: 0, value: 0, flag: t.flag || '🏳', tenders: [] };
+    byCountry[t.country].count++;
+    byCountry[t.country].value += t.value || 0;
+    byCountry[t.country].tenders.push(t);
+  });
+
+  const maxCount = Math.max(...Object.values(byCountry).map(v => v.count), 1);
+
+  // Valstu pozīcijas kartē (aptuvenas ES koordinātas)
+  const positions = {
+    'Latvija':    { x: 520, y: 120, w: 60, h: 40 },
+    'Lietuva':    { x: 505, y: 160, w: 60, h: 40 },
+    'Igaunija':   { x: 520, y: 80,  w: 60, h: 40 },
+    'Somija':     { x: 540, y: 30,  w: 70, h: 50 },
+    'Zviedrija':  { x: 460, y: 50,  w: 60, h: 80 },
+    'Dānija':     { x: 400, y: 110, w: 50, h: 40 },
+    'Nīderlande': { x: 350, y: 155, w: 50, h: 35 },
+    'Beļģija':    { x: 345, y: 185, w: 50, h: 30 },
+    'Vācija':     { x: 390, y: 160, w: 80, h: 80 },
+    'Polija':     { x: 455, y: 165, w: 80, h: 70 },
+    'Čehija':     { x: 430, y: 210, w: 60, h: 40 },
+    'Slovākija':  { x: 470, y: 220, w: 55, h: 35 },
+    'Austrija':   { x: 405, y: 225, w: 65, h: 35 },
+    'Ungārija':   { x: 455, y: 240, w: 65, h: 40 },
+    'Slovēnija':  { x: 395, y: 255, w: 50, h: 30 },
+    'Horvātija':  { x: 410, y: 270, w: 55, h: 40 },
+    'Francija':   { x: 300, y: 210, w: 80, h: 80 },
+    'Spānija':    { x: 245, y: 285, w: 100, h: 70 },
+    'Portugāle':  { x: 210, y: 285, w: 45, h: 65 },
+    'Itālija':    { x: 390, y: 285, w: 55, h: 90 },
+    'Grieķija':   { x: 460, y: 315, w: 60, h: 70 },
+    'Bulgārija':  { x: 490, y: 285, w: 60, h: 45 },
+    'Rumānija':   { x: 495, y: 250, w: 75, h: 50 },
+    'Īrija':      { x: 240, y: 140, w: 45, h: 50 },
+  };
+
+  let svgContent = `<svg width="100%" viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" style="background:var(--s2);border-radius:8px;">`;
+
+  // Fons
+  svgContent += `<rect width="700" height="420" fill="var(--s2)" rx="8"/>`;
+  svgContent += `<text x="350" y="25" text-anchor="middle" style="font-family:var(--mono);font-size:11px;fill:var(--muted);">Eiropas Savienība — Aktīvie elektroautobusu tenderi</text>`;
+
+  // Zīmēt visas valstis (pelēkas)
+  Object.entries(positions).forEach(([country, pos]) => {
+    const data = byCountry[country];
+    const hasData = data && data.count > 0;
+    const intensity = hasData ? Math.max(0.3, data.count / maxCount) : 0;
+    const fill = hasData
+      ? `rgba(0, 212, 255, ${intensity * 0.7})`
+      : 'rgba(30, 48, 80, 0.5)';
+    const stroke = hasData ? 'rgba(0, 212, 255, 0.6)' : 'rgba(30, 48, 80, 0.8)';
+
+    svgContent += `<g class="country-group" style="cursor:${hasData ? 'pointer' : 'default'}" onclick="${hasData ? `showCountryTenders('${country}')` : ''}">`;
+    svgContent += `<rect x="${pos.x}" y="${pos.y}" width="${pos.w}" height="${pos.h}" rx="4" fill="${fill}" stroke="${stroke}" stroke-width="${hasData ? 1.5 : 0.5}"/>`;
+
+    if (hasData) {
+      // Skaits burbulis
+      svgContent += `<circle cx="${pos.x + pos.w - 8}" cy="${pos.y + 8}" r="9" fill="var(--cyan)" opacity="0.9"/>`;
+      svgContent += `<text x="${pos.x + pos.w - 8}" y="${pos.y + 12}" text-anchor="middle" style="font-family:var(--mono);font-size:9px;font-weight:700;fill:#000;">${data.count}</text>`;
+    }
+
+    // Valsts nosaukums
+    const fontSize = pos.w < 55 ? 8 : 9;
+    svgContent += `<text x="${pos.x + pos.w / 2}" y="${pos.y + pos.h / 2 + 3}" text-anchor="middle" style="font-family:var(--body);font-size:${fontSize}px;fill:${hasData ? '#e8edf5' : '#5a7296'};">${country.length > 8 ? country.slice(0, 7) + '.' : country}</text>`;
+    svgContent += `</g>`;
+  });
+
+  svgContent += `</svg>`;
+  container.innerHTML = svgContent;
+
+  // Leģenda
+  const sorted = Object.entries(byCountry).sort((a, b) => b[1].count - a[1].count);
+  legend.innerHTML = sorted.map(([country, data]) => `
+    <div onclick="showCountryTenders('${country}')" style="display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:6px 12px;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)'">
+      <span style="font-size:16px;">${data.flag}</span>
+      <div>
+        <div style="font-size:12px;font-weight:500;">${country}</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);">${data.count} tenderi · ${data.value >= 1e6 ? '€' + (data.value/1e6).toFixed(1) + 'M' : data.value ? '€' + (data.value/1000).toFixed(0) + 'K' : '—'}</div>
+      </div>
+    </div>`).join('');
+}
+
+function showCountryTenders(country) {
+  // Pāriet uz tenderu sarakstu filtrētu pēc valsts
+  showPanel('tenders');
+  setTimeout(() => {
+    const sel = document.getElementById('s-country');
+    if (sel) { sel.value = country; renderTable('all'); }
+  }, 100);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STATISTIKA
+// ═══════════════════════════════════════════════════════════════════════════
+function renderStats() {
+  const container = document.getElementById('stats-container');
+
+  const byCountry = {};
+  const byStatus = { new: 0, open: 0, applied: 0, won: 0, lost: 0 };
+  let totalVal = 0, totalQty = 0;
+  const upcoming = tenders.filter(t => ['new','open'].includes(t.status)).sort((a,b) => new Date(a.deadline)-new Date(b.deadline)).slice(0,5);
+
+  tenders.forEach(t => {
+    byCountry[t.country] = (byCountry[t.country] || 0) + 1;
+    byStatus[t.status] = (byStatus[t.status] || 0) + 1;
+    totalVal += t.value || 0;
+    totalQty += t.qty || 0;
+  });
+
+  const countryColors = ['#00d4ff','#00e5a0','#ffb800','#ff4d6d','#a78bfa','#ff9f40','#00d4ff','#00e5a0'];
+  const sortedCountries = Object.entries(byCountry).sort((a,b) => b[1]-a[1]);
+  const maxCountry = sortedCountries[0]?.[1] || 1;
+
+  container.innerHTML = `
+    <!-- KPI -->
+    <div style="grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:4px;">
+      <div class="kpi cyan"><div class="kpi-label">Kopā tenderi</div><div class="kpi-val">${tenders.length}</div></div>
+      <div class="kpi green"><div class="kpi-label">Kopā vērtība</div><div class="kpi-val">${totalVal >= 1e6 ? (totalVal/1e6).toFixed(1)+'M' : (totalVal/1000).toFixed(0)+'K'}</div></div>
+      <div class="kpi amber"><div class="kpi-label">Kopā autobusi</div><div class="kpi-val">${totalQty}</div></div>
+      <div class="kpi purple"><div class="kpi-label">Valstis</div><div class="kpi-val">${Object.keys(byCountry).length}</div></div>
+    </div>
+
+    <!-- Pa valstīm -->
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:18px;">
+      <div style="font-family:var(--head);font-size:15px;font-weight:700;margin-bottom:14px;">📍 Pa valstīm</div>
+      ${sortedCountries.map(([country, count], i) => `
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer;" onclick="showCountryTenders('${country}')">
+          <div style="font-size:13px;min-width:100px;">${tenders.find(t=>t.country===country)?.flag || ''} ${country}</div>
+          <div style="flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;">
+            <div style="height:100%;width:${Math.round(count/maxCountry*100)}%;background:${countryColors[i%countryColors.length]};border-radius:4px;"></div>
+          </div>
+          <div style="font-family:var(--mono);font-size:12px;min-width:20px;text-align:right;">${count}</div>
+        </div>`).join('')}
+    </div>
+
+    <!-- Pa statusiem -->
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:18px;">
+      <div style="font-family:var(--head);font-size:15px;font-weight:700;margin-bottom:14px;">📊 Pa statusiem</div>
+      ${[['new','Jauns','var(--green)'],['open','Atvērts','var(--cyan)'],['applied','Pieteikts','var(--amber)'],['won','Uzvarēts','var(--green)'],['lost','Zaudēts','var(--red)']].map(([s, label, color]) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:8px;"><span class="status-dot dot-${s}"></span><span style="font-size:13px;">${label}</span></div>
+          <div style="font-family:var(--mono);font-size:13px;font-weight:500;">${byStatus[s] || 0}</div>
+        </div>`).join('')}
+
+      <div style="margin-top:16px;">
+        <div style="font-family:var(--head);font-size:14px;font-weight:700;margin-bottom:10px;">⏰ Tuvākie termiņi</div>
+        ${upcoming.map(t => {
+          const days = daysLeft(t.deadline);
+          return `<div onclick="openModal(${t.id})" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer;font-size:12px;">
+            <div style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.flag || ''} ${t.title.slice(0,35)}...</div>
+            <div style="font-family:var(--mono);color:${days<14?'var(--red)':'var(--amber)'};margin-left:8px;flex-shrink:0;">${days}d.</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
 }
